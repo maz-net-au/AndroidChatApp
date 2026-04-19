@@ -5,10 +5,16 @@
     <string name="label_ip">IP Address</string>
     <string name="label_port">Port</string>
     <string name="hint_ip">192.168.1.100</string>
-    <string name="hint_model">llama-2-7b</string>
+    <string name="hint_model">Select model</string>
     <string name="hint_port">8080</string>
     <string name="label_debug">Debug Mode</string>
+    <string name="btn_connect">Connect</string>
     <string name="btn_start_chat">Start Chat</string>
+    <string name="connecting">Connecting…</string>
+    <string name="models_loaded">Models loaded</string>
+    <string name="err_fetch_models">Failed to fetch models</string>
+    <string name="err_no_models">No models available</string>
     <string name="btn_back">Back to Settings</string>
     <string name="send">Send</string>
+    <string name="btn_new">New</string>
 </resources>

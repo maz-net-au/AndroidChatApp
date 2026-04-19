@@ -93,4 +93,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         messages.add(message);
         notifyItemInserted(messages.size() - 1);
     }
+
+    public void clear() {
+        messages.clear();
+        notifyDataSetChanged();
+    }
 }
