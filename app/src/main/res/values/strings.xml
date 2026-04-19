@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chat App</string>
+    <string name="settings_title">Server Settings</string>
+    <string name="label_ip">IP Address</string>
+    <string name="label_port">Port</string>
+    <string name="hint_ip">192.168.1.100</string>
+    <string name="hint_model">llama-2-7b</string>
+    <string name="hint_port">8080</string>
+    <string name="label_debug">Debug Mode</string>
+    <string name="btn_start_chat">Start Chat</string>
+    <string name="btn_back">Back to Settings</string>
+    <string name="send">Send</string>
+</resources>
