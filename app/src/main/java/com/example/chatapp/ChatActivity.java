@@ -199,7 +199,7 @@ public class ChatActivity extends AppCompatActivity {
                     if (choices.length() > 0) {
                         JSONObject choice = choices.getJSONObject(0);
                         JSONObject delta = choice.getJSONObject("delta");
-                        if (delta.has("content")) {
+                        if (delta.has("content") && !delta.isNull("content")) {
                             String content = delta.getString("content");
                             if (content != null && !content.isEmpty()) {
                                 onDeltaReceived.onDelta(content);
