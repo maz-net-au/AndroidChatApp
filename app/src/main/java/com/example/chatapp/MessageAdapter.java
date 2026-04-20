@@ -1,7 +1,6 @@
 package com.example.chatapp;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,19 +76,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.tvMessage.setText(message.getText());
-        int width = msgWidthInPx(holder.itemView.getContext());
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                width, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        DisplayMetrics dm = new DisplayMetrics();
+        ((android.view.WindowManager)
+                holder.itemView.getContext().getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay().getRealMetrics(dm);
+        int maxWidth = (int) (dm.widthPixels * 0.9f);
+        holder.tvMessage.setMaxWidth(maxWidth);
 
         if (message.isUser()) {
             holder.tvMessage.setBackgroundResource(R.color.user_message);
             holder.tvMessage.setGravity(android.view.Gravity.START);
-            params.gravity = android.view.Gravity.START;
+            holder.layoutMessage.setGravity(android.view.Gravity.START);
             holder.btnReroll.setVisibility(View.GONE);
         } else {
             holder.tvMessage.setBackgroundResource(R.color.server_message);
             holder.tvMessage.setGravity(android.view.Gravity.START);
-            params.gravity = android.view.Gravity.END;
+            holder.layoutMessage.setGravity(android.view.Gravity.END);
             holder.btnReroll.setVisibility(View.VISIBLE);
             holder.btnReroll.setOnClickListener(v -> {
                 if (rerollListener != null) {
@@ -97,15 +100,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             });
         }
-        holder.layoutMessage.setLayoutParams(params);
-    }
-
-    private int msgWidthInPx(Context context) {
-        DisplayMetrics dm = new DisplayMetrics();
-        ((android.view.WindowManager)
-                context.getSystemService(Context.WINDOW_SERVICE))
-                .getDefaultDisplay().getRealMetrics(dm);
-        return (int) (dm.widthPixels * 0.9f);
     }
 
     @Override

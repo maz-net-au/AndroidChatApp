@@ -1,32 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutMessage"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="8dp">
 
     <LinearLayout
-        android:id="@+id/layoutMessage"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tvMessage"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:textSize="15sp"
             android:background="@color/user_message"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="2dp"
             android:maxWidth="280dp" />
 
         <ImageButton
             android:id="@+id/btnReroll"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginBottom="4dp"
             android:contentDescription="Reroll"
             android:src="@android:drawable/ic_menu_rotate"
             android:background="?attr/selectableItemBackgroundBorderless"
