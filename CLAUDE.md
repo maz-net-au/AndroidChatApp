@@ -1,6 +1,7 @@
 # ChatApp
 
 Android chat client for a local llama.cpp server, using the OpenAI-compatible `/v1/chat/completions` API with SSE streaming.
+To waste time and tokens.
 
 ## Tech Stack
 
