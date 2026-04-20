@@ -3,6 +3,7 @@ package com.example.chatapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,16 @@ import java.util.List;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
     private List<Message> messages = new ArrayList<>();
+
+    public interface OnRerollListener {
+        void onReroll(int messagePosition);
+    }
+
+    private OnRerollListener rerollListener;
+
+    public void setRerollListener(OnRerollListener listener) {
+        this.rerollListener = listener;
+    }
 
     public static class Message {
         private String text;
@@ -39,10 +50,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessage;
+        ImageButton btnReroll;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tvMessage);
+            btnReroll = itemView.findViewById(R.id.btnReroll);
         }
     }
 
@@ -58,13 +71,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.tvMessage.setText(message.getText());
-        
+
         if (message.isUser()) {
             holder.tvMessage.setBackgroundResource(R.color.user_message);
             holder.tvMessage.setGravity(android.view.Gravity.END);
+            holder.btnReroll.setVisibility(View.GONE);
         } else {
             holder.tvMessage.setBackgroundResource(R.color.server_message);
             holder.tvMessage.setGravity(android.view.Gravity.START);
+            holder.btnReroll.setVisibility(View.VISIBLE);
+            holder.btnReroll.setOnClickListener(v -> {
+                if (rerollListener != null) {
+                    rerollListener.onReroll(position);
+                }
+            });
         }
     }
 

@@ -69,12 +69,28 @@ public class ChatActivity extends AppCompatActivity {
         rvMessages = findViewById(R.id.rvMessages);
 
         adapter = new MessageAdapter();
+        adapter.setRerollListener(this::handleReroll);
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
         rvMessages.setAdapter(adapter);
 
         btnSend.setOnClickListener(v -> sendMessage());
         btnNew.setOnClickListener(v -> clearConversation());
         tvBack.setOnClickListener(v -> finish());
+    }
+
+    private void handleReroll(int messagePosition) {
+        // Remove the last assistant message from history and resend
+        if (conversationHistory.isEmpty()) return;
+        conversationHistory.remove(conversationHistory.size() - 1);
+
+        // Rebuild response for the last user message
+        if (conversationHistory.isEmpty()) return;
+        JSONObject lastUserMsg = conversationHistory.get(conversationHistory.size() - 1);
+        String lastUserContent = lastUserMsg.optString("content", "");
+
+        mainHandler.post(() -> adapter.updateLastServerMessage(""));
+
+        executor.execute(() -> sendToServer(lastUserContent));
     }
 
     private void sendMessage() {
@@ -151,7 +167,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
             } else if (code >= 400) {
                 if (!debugMode) return;
-                final String finalCode = String.valueOf(code);
+                final int finalCode = code;
                 String errorMsg = "Error " + finalCode;
                 try {
                     InputStream errorStream = conn.getErrorStream();

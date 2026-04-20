@@ -5,16 +5,33 @@
     android:orientation="vertical"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/tvMessage"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:textSize="15sp"
-        android:background="@color/user_message"
-        android:layout_gravity="end"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:maxWidth="280dp" />
+        android:orientation="vertical"
+        android:layout_gravity="end">
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:textSize="15sp"
+            android:background="@color/user_message"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="2dp"
+            android:maxWidth="280dp" />
+
+        <ImageButton
+            android:id="@+id/btnReroll"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="4dp"
+            android:contentDescription="Reroll"
+            android:src="@android:drawable/ic_menu_rotate"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
 </LinearLayout>
