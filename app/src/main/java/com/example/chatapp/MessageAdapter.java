@@ -23,10 +23,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         void onReroll(int messagePosition);
     }
 
+    public interface OnContinueListener {
+        void onContinue(int messagePosition);
+    }
+
     private OnRerollListener rerollListener;
+    private OnContinueListener continueListener;
 
     public void setRerollListener(OnRerollListener listener) {
         this.rerollListener = listener;
+    }
+
+    public void setContinueListener(OnContinueListener listener) {
+        this.continueListener = listener;
     }
 
     public static class Message {
@@ -54,12 +63,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessage;
         ImageButton btnReroll;
+        ImageButton btnContinue;
         LinearLayout layoutMessage;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tvMessage);
             btnReroll = itemView.findViewById(R.id.btnReroll);
+            btnContinue = itemView.findViewById(R.id.btnContinue);
             layoutMessage = itemView.findViewById(R.id.layoutMessage);
         }
     }
@@ -89,6 +100,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.tvMessage.setGravity(android.view.Gravity.START);
             holder.layoutMessage.setGravity(android.view.Gravity.START);
             holder.btnReroll.setVisibility(View.GONE);
+            holder.btnContinue.setVisibility(View.GONE);
         } else {
             holder.tvMessage.setBackgroundResource(R.color.server_message);
             holder.tvMessage.setGravity(android.view.Gravity.START);
@@ -97,6 +109,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.btnReroll.setOnClickListener(v -> {
                 if (rerollListener != null) {
                     rerollListener.onReroll(position);
+                }
+            });
+            holder.btnContinue.setVisibility(View.VISIBLE);
+            holder.btnContinue.setOnClickListener(v -> {
+                if (continueListener != null) {
+                    continueListener.onContinue(position);
                 }
             });
         }

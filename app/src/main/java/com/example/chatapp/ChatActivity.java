@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 public class ChatActivity extends AppCompatActivity {
 
     private EditText etMessage;
-    private MaterialButton btnSend, btnNew, btnContinue;
+    private MaterialButton btnSend, btnNew;
     private TextView tvBack;
     private RecyclerView rvMessages;
     private MessageAdapter adapter;
@@ -65,17 +65,16 @@ public class ChatActivity extends AppCompatActivity {
         etMessage = findViewById(R.id.etMessage);
         btnSend = findViewById(R.id.btnSend);
         btnNew = findViewById(R.id.btnNew);
-        btnContinue = findViewById(R.id.btnContinue);
         tvBack = findViewById(R.id.tvBack);
         rvMessages = findViewById(R.id.rvMessages);
 
         adapter = new MessageAdapter();
         adapter.setRerollListener(this::handleReroll);
+        adapter.setContinueListener(this::handleContinue);
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
         rvMessages.setAdapter(adapter);
 
         btnSend.setOnClickListener(v -> sendMessage());
-        btnContinue.setOnClickListener(v -> handleContinue());
         btnNew.setOnClickListener(v -> clearConversation());
         tvBack.setOnClickListener(v -> finish());
     }
@@ -95,7 +94,7 @@ public class ChatActivity extends AppCompatActivity {
         executor.execute(() -> sendToServer(lastUserContent, "", false));
     }
 
-    private void handleContinue() {
+    private void handleContinue(int position) {
         if (conversationHistory.isEmpty()) return;
 
         // Must have an assistant message to continue from

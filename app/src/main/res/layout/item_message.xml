@@ -29,6 +29,15 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:visibility="gone" />
 
+        <ImageButton
+            android:id="@+id/btnContinue"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Continue"
+            android:src="@android:drawable/ic_media_play"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </LinearLayout>
