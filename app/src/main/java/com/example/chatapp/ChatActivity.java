@@ -105,7 +105,6 @@ public class ChatActivity extends AppCompatActivity {
 
         // Get the base content of the last assistant message (tokens will be appended to this)
         String baseContent = conversationHistory.get(conversationHistory.size() - 1).optString("content", "");
-        conversationHistory.remove(conversationHistory.size() - 1);
 
         executor.execute(() -> sendToServer("", baseContent, true));
     }
