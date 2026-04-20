@@ -1,9 +1,13 @@
 package com.example.chatapp;
 
+import android.content.Context;
+import android.graphics.Rect;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,11 +55,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessage;
         ImageButton btnReroll;
+        LinearLayout layoutMessage;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tvMessage);
             btnReroll = itemView.findViewById(R.id.btnReroll);
+            layoutMessage = itemView.findViewById(R.id.layoutMessage);
         }
     }
 
@@ -71,14 +77,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.tvMessage.setText(message.getText());
+        int width = msgWidthInPx(holder.itemView.getContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                width, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         if (message.isUser()) {
             holder.tvMessage.setBackgroundResource(R.color.user_message);
-            holder.tvMessage.setGravity(android.view.Gravity.END);
+            holder.tvMessage.setGravity(android.view.Gravity.START);
+            params.gravity = android.view.Gravity.START;
             holder.btnReroll.setVisibility(View.GONE);
         } else {
             holder.tvMessage.setBackgroundResource(R.color.server_message);
             holder.tvMessage.setGravity(android.view.Gravity.START);
+            params.gravity = android.view.Gravity.END;
             holder.btnReroll.setVisibility(View.VISIBLE);
             holder.btnReroll.setOnClickListener(v -> {
                 if (rerollListener != null) {
@@ -86,6 +97,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             });
         }
+        holder.layoutMessage.setLayoutParams(params);
+    }
+
+    private int msgWidthInPx(Context context) {
+        DisplayMetrics dm = new DisplayMetrics();
+        ((android.view.WindowManager)
+                context.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay().getRealMetrics(dm);
+        return (int) (dm.widthPixels * 0.9f);
     }
 
     @Override
