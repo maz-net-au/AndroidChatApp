@@ -79,11 +79,6 @@ No HTTP client library — uses plain `HttpURLConnection`:
 SettingsActivity has a minimal JSON parser (`parseModelIds()`) that scans for `"id":"..."` patterns in the `/v1/models` response, avoiding an external JSON library dependency.
 
 ## Key decisions / gotchas
-
-- **No JSON library**: Uses `org.json` (Android built-in) and even hand-rolls JSON string parsing for model IDs. Don't add external deps unless necessary.
-- **HTTP, not HTTPS**: Network security config allows cleartext HTTP for local IP connections.
-- **Conversation is in-memory only**: Tapping back to settings and re-entering chat starts fresh. No persistence of chat history.
-- **Single-thread executor**: Both activities use `Executors.newSingleThreadExecutor()` — fine for this app, but not thread-safe if multiple network calls overlap within one activity.
 - **Debug mode**: Only shows HTTP error responses (status >= 400). All 2xx codes are silently ignored.
 - **SSE parser**: Uses `BufferedReader.readLine()` and manual string splitting. Fragile but works for llama.cpp's SSE format.
 
