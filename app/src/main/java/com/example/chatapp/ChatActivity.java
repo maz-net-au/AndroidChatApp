@@ -92,7 +92,7 @@ public class ChatActivity extends AppCompatActivity {
 
         mainHandler.post(() -> adapter.updateLastServerMessage(""));
 
-        executor.execute(() -> sendToServer(lastUserContent));
+        executor.execute(() -> sendToServer(lastUserContent, "", false));
     }
 
     private void handleContinue() {
@@ -103,13 +103,11 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        // Remove the last assistant message from history so we can replace it
+        // Get the base content of the last assistant message (tokens will be appended to this)
+        String baseContent = conversationHistory.get(conversationHistory.size() - 1).optString("content", "");
         conversationHistory.remove(conversationHistory.size() - 1);
 
-        // Add placeholder for assistant response
-        adapter.addServerMessage("");
-
-        executor.execute(() -> sendToServer(""));
+        executor.execute(() -> sendToServer("", baseContent, true));
     }
 
     private void sendMessage() {
@@ -133,10 +131,10 @@ public class ChatActivity extends AppCompatActivity {
         // Add placeholder for assistant response
         adapter.addServerMessage("");
 
-        executor.execute(() -> sendToServer(message));
+        executor.execute(() -> sendToServer(message, "", false));
     }
 
-    private void sendToServer(String lastUserMessage) {
+    private void sendToServer(String lastUserMessage, String baseContinueContent, boolean continueRequest) {
         try {
             URL url = new URL(serverUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -158,6 +156,9 @@ public class ChatActivity extends AppCompatActivity {
                 requestBody.put("model", model);
                 requestBody.put("messages", messagesArray);
                 requestBody.put("stream", true);
+                if (continueRequest) {
+                    requestBody.put("continue_", true);
+                }
             } catch (JSONException e) {
                 throw new IOException("Failed to build request", e);
             }
@@ -168,11 +169,15 @@ public class ChatActivity extends AppCompatActivity {
 
             final int code = conn.getResponseCode();
             if (code == HttpURLConnection.HTTP_OK) {
-                StringBuilder assistantContent = new StringBuilder();
+                StringBuilder assistantContent = new StringBuilder(baseContinueContent);
                 readSSE(conn, (delta) -> {
                     assistantContent.append(delta);
                     final String currentResponse = assistantContent.toString();
-                    mainHandler.post(() -> adapter.updateLastServerMessage(currentResponse));
+                    if (!continueRequest) {
+                        mainHandler.post(() -> adapter.updateLastServerMessage(currentResponse));
+                    } else {
+                        mainHandler.post(() -> adapter.appendLastServerMessage(delta));
+                    }
                 });
 
                 // After the full response is collected, add to conversation history

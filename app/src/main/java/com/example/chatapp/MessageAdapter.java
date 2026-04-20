@@ -122,6 +122,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
+    public void appendLastServerMessage(String moreText) {
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (!messages.get(i).isUser()) {
+                String current = messages.get(i).getText();
+                messages.get(i).setText(current + moreText);
+                notifyItemChanged(i);
+                return;
+            }
+        }
+    }
+
     public void addServerMessage(String text) {
         Message message = new Message(text, false);
         messages.add(message);
