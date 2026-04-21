@@ -196,29 +196,35 @@ public class ChatActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // Should never happen
                 }
+
+                // Show request/response in debug mode
+                if (debugMode) {
+                    final JSONObject finalRequestBody = requestBody;
+                    final String finalResponse = assistantContent.toString();
+                    mainHandler.post(() -> showDebugDialog(finalRequestBody, finalResponse));
+                }
             } else if (code >= 400) {
                 if (!debugMode) return;
                 final int finalCode = code;
-                String errorMsg = "Error " + finalCode;
+                StringBuilder errResponse = new StringBuilder();
                 try {
                     InputStream errorStream = conn.getErrorStream();
                     if (errorStream != null) {
                         BufferedReader errReader = new BufferedReader(new InputStreamReader(errorStream));
-                        StringBuilder errResponse = new StringBuilder();
                         String errLine;
                         while ((errLine = errReader.readLine()) != null) {
                             errResponse.append(errLine);
                         }
-                        errorMsg = "Error " + finalCode + ": " + errResponse.toString();
                     }
                 } catch (IOException e) {
-                    errorMsg = "Error " + finalCode + ": " + e.getMessage();
+                    // ignore
                 }
 
-                final String finalErrorMsg = errorMsg;
+                final String finalResponse = errResponse.toString();
                 mainHandler.post(() ->
-                        adapter.addMessage(new MessageAdapter.Message(finalErrorMsg, false))
+                        adapter.addMessage(new MessageAdapter.Message("Error " + finalCode, false))
                 );
+                mainHandler.post(() -> showDebugDialog(requestBody, finalResponse));
             }
         } catch (IOException e) {
             final String errorMsg = "Error: " + e.getMessage();
@@ -300,6 +306,20 @@ public class ChatActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Conversation History")
                     .setMessage(pretty)
+                    .setPositiveButton("Close", null)
+                    .show();
+        } catch (JSONException e) {
+            // Should never happen
+        }
+    }
+
+    private void showDebugDialog(JSONObject request, String response) {
+        try {
+            String prettyRequest = request.toString(2);
+            String body = "REQUEST:\n" + prettyRequest + "\n\nRESPONSE:\n" + response;
+            new AlertDialog.Builder(this)
+                    .setTitle("Debug: Request/Response")
+                    .setMessage(body)
                     .setPositiveButton("Close", null)
                     .show();
         } catch (JSONException e) {
