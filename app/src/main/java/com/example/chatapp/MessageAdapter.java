@@ -86,7 +86,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
-        holder.tvMessage.setText(message.getText());
+        holder.tvMessage.setMovementMethod(new android.text.method.LinkMovementMethod());
+        holder.tvMessage.setText(MarkdownRenderer.render(message.getText()));
 
         DisplayMetrics dm = new DisplayMetrics();
         ((android.view.WindowManager)
