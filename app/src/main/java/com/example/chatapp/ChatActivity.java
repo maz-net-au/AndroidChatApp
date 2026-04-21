@@ -183,7 +183,11 @@ public class ChatActivity extends AppCompatActivity {
                     JSONObject assistantMsg = new JSONObject();
                     assistantMsg.put("role", "assistant");
                     assistantMsg.put("content", assistantContent.toString());
-                    conversationHistory.add(assistantMsg);
+                    if (continueRequest) {
+                        conversationHistory.set(conversationHistory.size() - 1, assistantMsg);
+                    } else {
+                        conversationHistory.add(assistantMsg);
+                    }
                 } catch (JSONException e) {
                     // Should never happen
                 }
