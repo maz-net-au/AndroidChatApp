@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 
+import android.app.AlertDialog;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,6 +71,9 @@ public class ChatActivity extends AppCompatActivity {
         rvMessages = findViewById(R.id.rvMessages);
 
         adapter = new MessageAdapter();
+        if (debugMode) {
+            adapter.setShowHistoryListener(this::showConversationHistory);
+        }
         adapter.setRerollListener(this::handleReroll);
         adapter.setContinueListener(this::handleContinue);
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
@@ -283,6 +288,23 @@ public class ChatActivity extends AppCompatActivity {
         conversationHistory.clear();
         adapter.clear();
         etMessage.requestFocus();
+    }
+
+    private void showConversationHistory() {
+        try {
+            JSONArray historyJson = new JSONArray();
+            for (JSONObject msg : conversationHistory) {
+                historyJson.put(msg);
+            }
+            String pretty = historyJson.toString(2);
+            new AlertDialog.Builder(this)
+                    .setTitle("Conversation History")
+                    .setMessage(pretty)
+                    .setPositiveButton("Close", null)
+                    .show();
+        } catch (JSONException e) {
+            // Should never happen
+        }
     }
 
     @Override

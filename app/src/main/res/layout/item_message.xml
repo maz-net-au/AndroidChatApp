@@ -45,6 +45,16 @@
                 android:src="@android:drawable/ic_media_play"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btnHistory"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="5dp"
+                android:contentDescription="History"
+                android:src="@android:drawable/ic_menu_view"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 

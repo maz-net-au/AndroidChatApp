@@ -27,8 +27,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         void onContinue(int messagePosition);
     }
 
+    public interface OnShowHistoryListener {
+        void onShowHistory();
+    }
+
     private OnRerollListener rerollListener;
     private OnContinueListener continueListener;
+    private OnShowHistoryListener showHistoryListener;
 
     public void setRerollListener(OnRerollListener listener) {
         this.rerollListener = listener;
@@ -36,6 +41,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void setContinueListener(OnContinueListener listener) {
         this.continueListener = listener;
+    }
+
+    public void setShowHistoryListener(OnShowHistoryListener listener) {
+        this.showHistoryListener = listener;
     }
 
     public static class Message {
@@ -64,6 +73,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         TextView tvMessage;
         ImageButton btnReroll;
         ImageButton btnContinue;
+        ImageButton btnHistory;
         LinearLayout layoutMessage;
 
         public MessageViewHolder(@NonNull View itemView) {
@@ -71,6 +81,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             tvMessage = itemView.findViewById(R.id.tvMessage);
             btnReroll = itemView.findViewById(R.id.btnReroll);
             btnContinue = itemView.findViewById(R.id.btnContinue);
+            btnHistory = itemView.findViewById(R.id.btnHistory);
             layoutMessage = itemView.findViewById(R.id.layoutMessage);
         }
     }
@@ -118,6 +129,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     continueListener.onContinue(position);
                 }
             });
+            if (showHistoryListener != null) {
+                holder.btnHistory.setVisibility(View.VISIBLE);
+                holder.btnHistory.setOnClickListener(v -> showHistoryListener.onShowHistory());
+            }
         }
     }
 
