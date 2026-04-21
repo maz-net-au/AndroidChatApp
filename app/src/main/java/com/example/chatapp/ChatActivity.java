@@ -56,9 +56,9 @@ public class ChatActivity extends AppCompatActivity {
         executor = Executors.newSingleThreadExecutor();
         mainHandler = new Handler(Looper.getMainLooper());
 
-        String ip = prefs.getString("ip", "");
-        model = prefs.getString("model", "llama-2-7b");
-        String port = prefs.getString("port", "");
+        String ip = prefs.getString("ip", "192.168.1.50");
+        model = prefs.getString("model", "Qwen3.6-VL-35B-A3B-NR");
+        String port = prefs.getString("port", "7800");
         debugMode = prefs.getBoolean("debug", false);
         serverUrl = "http://" + ip + ":" + port + "/v1/chat/completions";
 
@@ -217,6 +217,26 @@ public class ChatActivity extends AppCompatActivity {
                 adapter.addMessage(new MessageAdapter.Message(errorMsg, false))
             );
         }
+    }
+
+    private static String stripThoughtTags(String text) {
+        String result = text;
+        // Strip all <think>...</think> tags including their content
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        while (i < result.length()) {
+            int open = result.indexOf("<think>", i);
+            int close = result.indexOf("</think>", i);
+            if (open == -1 || close  == -1) { // not found
+                sb.append(result.substring(i));
+                break;
+            }
+            // Append text before the opening tag
+            sb.append(result.substring(i, open));
+            // Skip past the opening tag
+            i = close + 8; // cut to the end of this block
+        }
+        return sb.toString();
     }
 
     private void readSSE(HttpURLConnection conn, OnDeltaReceived onDeltaReceived) throws IOException {
