@@ -18,6 +18,15 @@ public class MarkdownRenderer {
         }
         Node document = PARSER.parse(markdown);
         String html = HTML_RENDERER.render(document);
+        // Strip <p> wrappers that add extra block-level line space
+        if (html.startsWith("<p>")) {
+            html = html.substring(3);
+            if (html.endsWith("</p>")) {
+                html = html.substring(0, html.length() - 4);
+            }
+        }
+        // Trim trailing whitespace/newlines from the renderer output
+        html = html.trim();
         return Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
     }
 }
