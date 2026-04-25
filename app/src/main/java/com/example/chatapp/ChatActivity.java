@@ -46,6 +46,7 @@ public class ChatActivity extends AppCompatActivity {
     private String model;
     private boolean debugMode;
     private boolean allowThinking;
+    private volatile HttpURLConnection activeConnection;
 
     // Conversation history for the OpenAI-compatible API
     private final List<JSONObject> conversationHistory = new ArrayList<>();
@@ -81,7 +82,13 @@ public class ChatActivity extends AppCompatActivity {
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
         rvMessages.setAdapter(adapter);
 
-        btnSend.setOnClickListener(v -> sendMessage());
+        btnSend.setOnClickListener(v -> {
+            if (btnSend.getText().toString().equals(getString(R.string.stop))) {
+                stopGeneration();
+            } else {
+                sendMessage();
+            }
+        });
         btnNew.setOnClickListener(v -> clearConversation());
         tvBack.setOnClickListener(v -> finish());
     }
@@ -96,8 +103,9 @@ public class ChatActivity extends AppCompatActivity {
         JSONObject lastUserMsg = conversationHistory.get(conversationHistory.size() - 1);
         String lastUserContent = lastUserMsg.optString("content", "");
 
-        mainHandler.post(() -> adapter.updateLastServerMessage(""));
+       mainHandler.post(() -> adapter.updateLastServerMessage(""));
 
+        setStreaming(true);
         executor.execute(() -> sendToServer(lastUserContent, "", false));
     }
 
@@ -112,7 +120,25 @@ public class ChatActivity extends AppCompatActivity {
         // Get the base content of the last assistant message (tokens will be appended to this)
         String baseContent = conversationHistory.get(conversationHistory.size() - 1).optString("content", "");
 
+        setStreaming(true);
         executor.execute(() -> sendToServer("", baseContent, true));
+    }
+
+    private void setStreaming(boolean streaming) {
+        if (streaming) {
+            btnSend.setText(R.string.stop);
+        } else {
+            btnSend.setText(R.string.send);
+        }
+    }
+
+    private void stopGeneration() {
+        setStreaming(false);
+        HttpURLConnection conn = activeConnection;
+        if (conn != null) {
+            conn.disconnect();
+            activeConnection = null;
+        }
     }
 
     private void sendMessage() {
@@ -131,18 +157,21 @@ public class ChatActivity extends AppCompatActivity {
             // Should never happen
         }
 
-        etMessage.setText("");
+      etMessage.setText("");
 
         // Add placeholder for assistant response
         adapter.addServerMessage("");
 
+        setStreaming(true);
         executor.execute(() -> sendToServer(message, "", false));
     }
 
     private void sendToServer(String lastUserMessage, String baseContinueContent, boolean continueRequest) {
+        HttpURLConnection conn = null;
         try {
             URL url = new URL(serverUrl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
+            activeConnection = conn;
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/json");
@@ -244,6 +273,10 @@ public class ChatActivity extends AppCompatActivity {
             mainHandler.post(() ->
                 adapter.addMessage(new MessageAdapter.Message("Couldn't make json error", false))
             );
+        } finally {
+            activeConnection = null;
+            if (conn != null) conn.disconnect();
+            mainHandler.post(() -> setStreaming(false));
         }
     }
 

@@ -17,5 +17,6 @@
     <string name="err_no_models">No models available</string>
     <string name="btn_back">Back to Settings</string>
     <string name="send">Send</string>
+    <string name="stop">Stop</string>
     <string name="btn_new">New</string>
 </resources>
