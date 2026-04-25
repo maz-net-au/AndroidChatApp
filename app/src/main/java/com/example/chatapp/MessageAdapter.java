@@ -104,8 +104,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         ((android.view.WindowManager)
                 holder.itemView.getContext().getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay().getRealMetrics(dm);
-        int maxWidth = (int) (dm.widthPixels * 0.9f);
-        holder.tvMessage.setMaxWidth(maxWidth);
+        int width90 = (int) (dm.widthPixels * 0.9f);
+        holder.tvMessage.setMaxWidth(width90);
+        holder.tvMessage.setMinWidth(width90);
 
         if (message.isUser()) {
             holder.tvMessage.setBackgroundResource(R.color.user_message);

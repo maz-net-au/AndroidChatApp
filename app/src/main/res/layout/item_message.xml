@@ -18,7 +18,6 @@
             android:padding="12dp"
             android:textSize="15sp"
             android:background="@color/user_message"
-            android:maxWidth="280dp"
             android:textColorLink="#6200EE"
             android:autoLink="none" />
         <LinearLayout
