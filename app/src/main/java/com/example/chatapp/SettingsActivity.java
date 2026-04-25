@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private EditText etIp, etPort;
     private AutoCompleteTextView atvModel;
-    private MaterialCheckBox cbDebug;
+    private MaterialCheckBox cbAllowThinking, cbDebug;
     private MaterialButton btnConnect, btnStartChat;
     private SharedPreferences prefs;
     private ExecutorService executor;
@@ -49,6 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
         etIp = findViewById(R.id.etIp);
         etPort = findViewById(R.id.etPort);
         atvModel = findViewById(R.id.atvModel);
+        cbAllowThinking = findViewById(R.id.cbAllowThinking);
         cbDebug = findViewById(R.id.cbDebug);
         btnConnect = findViewById(R.id.btnConnect);
         btnStartChat = findViewById(R.id.btnStartChat);
@@ -56,9 +57,11 @@ public class SettingsActivity extends AppCompatActivity {
         // Load saved settings
         String savedIp = prefs.getString("ip", "");
         String savedPort = prefs.getString("port", "");
+        boolean savedAllowThinking = prefs.getBoolean("allowThinking", false);
         boolean savedDebug = prefs.getBoolean("debug", false);
         etIp.setText(savedIp);
         etPort.setText(savedPort);
+        cbAllowThinking.setChecked(savedAllowThinking);
         cbDebug.setChecked(savedDebug);
 
         // "Connect" button — fetch /models from the llama-server
@@ -98,6 +101,7 @@ public class SettingsActivity extends AppCompatActivity {
                     .putString("ip", ip)
                     .putString("model", model)
                     .putString("port", port)
+                    .putBoolean("allowThinking", cbAllowThinking.isChecked())
                     .putBoolean("debug", cbDebug.isChecked())
                     .apply();
 

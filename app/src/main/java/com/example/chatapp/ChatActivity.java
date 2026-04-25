@@ -45,6 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     private String serverUrl;
     private String model;
     private boolean debugMode;
+    private boolean allowThinking;
 
     // Conversation history for the OpenAI-compatible API
     private final List<JSONObject> conversationHistory = new ArrayList<>();
@@ -62,6 +63,7 @@ public class ChatActivity extends AppCompatActivity {
         model = prefs.getString("model", "Qwen3.6-VL-35B-A3B-NR");
         String port = prefs.getString("port", "7800");
         debugMode = prefs.getBoolean("debug", false);
+        allowThinking = prefs.getBoolean("allowThinking", false);
         serverUrl = "http://" + ip + ":" + port + "/v1/chat/completions";
 
         etMessage = findViewById(R.id.etMessage);
@@ -184,10 +186,14 @@ public class ChatActivity extends AppCompatActivity {
                 });
 
                 // After the full response is collected, add to conversation history
+                String finalContent = assistantContent.toString();
+                if (!allowThinking) {
+                    finalContent = stripThoughtTags(finalContent);
+                }
                 try {
                     JSONObject assistantMsg = new JSONObject();
                     assistantMsg.put("role", "assistant");
-                    assistantMsg.put("content", assistantContent.toString());
+                    assistantMsg.put("content", finalContent);
                     if (continueRequest) {
                         conversationHistory.set(conversationHistory.size() - 1, assistantMsg);
                     } else {
@@ -242,21 +248,28 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private static String stripThoughtTags(String text) {
-        String result = text;
-        // Strip all <think>...</think> tags including their content
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        while (i < result.length()) {
-            int open = result.indexOf("<think>", i);
-            int close = result.indexOf("</think>", i);
-            if (open == -1 || close  == -1) { // not found
-                sb.append(result.substring(i));
+        while (i < text.length()) {
+            int open = text.indexOf("
+
+</think>
+
+", i);
+            if (open == -1) {
+                sb.append(text.substring(i));
                 break;
             }
-            // Append text before the opening tag
-            sb.append(result.substring(i, open));
-            // Skip past the opening tag
-            i = close + 8; // cut to the end of this block
+            sb.append(text.substring(i, open));
+            int close = text.indexOf("
+
+</think>
+
+", open + 2);
+            if (close == -1) {
+                break;
+            }
+            i = close + 10;
         }
         return sb.toString();
     }
