@@ -200,7 +200,7 @@ public class ChatActivity extends AppCompatActivity {
                 // Show request/response in debug mode
                 if (debugMode) {
                     final JSONObject finalRequestBody = requestBody;
-                    final String finalResponse = assistantContent.toString();
+                    final JSONObject finalResponse = conversationHistory.get(conversationHistory.size() - 1);
                     mainHandler.post(() -> showDebugDialog(finalRequestBody, finalResponse));
                 }
             } else if (code >= 400) {
@@ -224,12 +224,19 @@ public class ChatActivity extends AppCompatActivity {
                 mainHandler.post(() ->
                         adapter.addMessage(new MessageAdapter.Message("Error " + finalCode, false))
                 );
-                mainHandler.post(() -> showDebugDialog(requestBody, finalResponse));
+                JSONObject errorBody = new JSONObject();
+                errorBody.put("code", finalCode);
+                errorBody.put("content", errResponse.toString());
+                mainHandler.post(() -> showDebugDialog(requestBody, errorBody));
             }
         } catch (IOException e) {
             final String errorMsg = "Error: " + e.getMessage();
             mainHandler.post(() ->
                 adapter.addMessage(new MessageAdapter.Message(errorMsg, false))
+            );
+        } catch (JSONException e) {
+            mainHandler.post(() ->
+                adapter.addMessage(new MessageAdapter.Message("Couldn't make json error", false))
             );
         }
     }
@@ -313,10 +320,9 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private void showDebugDialog(JSONObject request, String response) {
+    private void showDebugDialog(JSONObject request, JSONObject response) {
         try {
-            String prettyRequest = request.toString(2);
-            String body = "REQUEST:\n" + prettyRequest + "\n\nRESPONSE:\n" + response;
+            String body = "REQUEST:\n" + request.toString(2) + "\n\nRESPONSE:\n" + response.toString(2);
             new AlertDialog.Builder(this)
                     .setTitle("Debug: Request/Response")
                     .setMessage(body)
