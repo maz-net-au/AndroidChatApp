@@ -209,11 +209,14 @@ public class ChatActivity extends AppCompatActivity {
                 readSSE(conn, (delta) -> {
                     assistantContent.append(delta);
                     final String currentResponse = assistantContent.toString();
-                    if (!continueRequest) {
-                        mainHandler.post(() -> adapter.updateLastServerMessage(currentResponse));
-                    } else {
-                        mainHandler.post(() -> adapter.appendLastServerMessage(delta));
-                    }
+                    mainHandler.post(() -> {
+                        if (!continueRequest) {
+                            adapter.updateLastServerMessage(currentResponse);
+                        } else {
+                            adapter.appendLastServerMessage(delta);
+                        }
+                        rvMessages.scrollToPosition(adapter.getItemCount() - 1);
+                    });
                 });
                 saveAssistantResponse(assistantContent.toString(), continueRequest, requestBody);
             } else if (code >= 400) {
