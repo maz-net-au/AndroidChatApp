@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -135,6 +136,7 @@ public class ChatActivity extends AppCompatActivity {
     private void stopGeneration() {
         setStreaming(false);
         HttpURLConnection conn = activeConnection;
+        activeConnection = null;
         if (conn != null) {
             conn.disconnect();
             activeConnection = null;
@@ -265,10 +267,12 @@ public class ChatActivity extends AppCompatActivity {
                 mainHandler.post(() -> showDebugDialog(requestBody, errorBody));
             }
         } catch (IOException e) {
-            final String errorMsg = "Error: " + e.getMessage();
-            mainHandler.post(() ->
-                adapter.addMessage(new MessageAdapter.Message(errorMsg, false))
-            );
+            if (activeConnection != null) {
+                final String errorMsg = e.getMessage();
+                mainHandler.post(() ->
+                    Toast.makeText(ChatActivity.this, "Error: " + errorMsg, Toast.LENGTH_LONG).show()
+                );
+            }
         } catch (JSONException e) {
             mainHandler.post(() ->
                 adapter.addMessage(new MessageAdapter.Message("Couldn't make json error", false))
