@@ -204,8 +204,8 @@ public class ChatActivity extends AppCompatActivity {
             }
 
             final int code = conn.getResponseCode();
+            StringBuilder assistantContent = new StringBuilder(baseContinueContent);
             if (code == HttpURLConnection.HTTP_OK) {
-                StringBuilder assistantContent = new StringBuilder(baseContinueContent);
                 readSSE(conn, (delta) -> {
                     assistantContent.append(delta);
                     final String currentResponse = assistantContent.toString();
@@ -215,31 +215,7 @@ public class ChatActivity extends AppCompatActivity {
                         mainHandler.post(() -> adapter.appendLastServerMessage(delta));
                     }
                 });
-
-                // After the full response is collected, add to conversation history
-                String finalContent = assistantContent.toString();
-                if (!allowThinking) {
-                    finalContent = stripThoughtTags(finalContent);
-                }
-                try {
-                    JSONObject assistantMsg = new JSONObject();
-                    assistantMsg.put("role", "assistant");
-                    assistantMsg.put("content", finalContent);
-                    if (continueRequest) {
-                        conversationHistory.set(conversationHistory.size() - 1, assistantMsg);
-                    } else {
-                        conversationHistory.add(assistantMsg);
-                    }
-                } catch (JSONException e) {
-                    // Should never happen
-                }
-
-                // Show request/response in debug mode
-                if (debugMode) {
-                    final JSONObject finalRequestBody = requestBody;
-                    final JSONObject finalResponse = conversationHistory.get(conversationHistory.size() - 1);
-                    mainHandler.post(() -> showDebugDialog(finalRequestBody, finalResponse));
-                }
+                saveAssistantResponse(assistantContent.toString(), continueRequest, requestBody);
             } else if (code >= 400) {
                 if (!debugMode) return;
                 final int finalCode = code;
@@ -272,6 +248,9 @@ public class ChatActivity extends AppCompatActivity {
                 mainHandler.post(() ->
                     Toast.makeText(ChatActivity.this, "Error: " + errorMsg, Toast.LENGTH_LONG).show()
                 );
+            } else {
+                // User-initiated stop — save the partial response
+                saveAssistantResponse(assistantContent.toString(), continueRequest, null);
             }
         } catch (JSONException e) {
             mainHandler.post(() ->
@@ -301,6 +280,30 @@ public class ChatActivity extends AppCompatActivity {
             i = close + 10;
         }
         return sb.toString();
+    }
+
+    private void saveAssistantResponse(String content, boolean continueRequest, JSONObject requestBody) {
+        String finalContent = content;
+        if (!allowThinking) {
+            finalContent = stripThoughtTags(finalContent);
+        }
+        try {
+            JSONObject assistantMsg = new JSONObject();
+            assistantMsg.put("role", "assistant");
+            assistantMsg.put("content", finalContent);
+            if (continueRequest) {
+                conversationHistory.set(conversationHistory.size() - 1, assistantMsg);
+            } else {
+                conversationHistory.add(assistantMsg);
+            }
+        } catch (JSONException e) {
+            // Should never happen
+        }
+        if (debugMode && requestBody != null) {
+            final JSONObject finalRequestBody = requestBody;
+            final JSONObject finalResponse = conversationHistory.get(conversationHistory.size() - 1);
+            mainHandler.post(() -> showDebugDialog(finalRequestBody, finalResponse));
+        }
     }
 
     private void readSSE(HttpURLConnection conn, OnDeltaReceived onDeltaReceived) throws IOException {
