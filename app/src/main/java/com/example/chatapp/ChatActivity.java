@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,7 +80,9 @@ public class ChatActivity extends AppCompatActivity {
         }
         adapter.setRerollListener(this::handleReroll);
         adapter.setContinueListener(this::handleContinue);
-        rvMessages.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        rvMessages.setLayoutManager(layoutManager);
         rvMessages.setAdapter(adapter);
 
         btnSend.setOnClickListener(v -> {
@@ -216,19 +217,6 @@ public class ChatActivity extends AppCompatActivity {
                         } else {
                             adapter.appendLastServerMessage(delta);
                         }
-                        LinearLayoutManager lm = (LinearLayoutManager) rvMessages.getLayoutManager();
-                        int pos = adapter.getItemCount() - 1;
-                        rvMessages.post(() -> {
-                            lm.scrollToPosition(pos);
-                            rvMessages.post(() -> {
-                                View lastChild = lm.findViewByPosition(pos);
-                                if (lastChild != null) {
-                                    int overflow = lastChild.getBottom() - rvMessages.getBottom();
-                                    if (overflow > 0)
-                                        rvMessages.scrollBy(0, overflow);
-                                }
-                            });
-                        });
                     });
                 });
                 saveAssistantResponse(assistantContent.toString(), continueRequest, requestBody);
