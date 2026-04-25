@@ -251,21 +251,13 @@ public class ChatActivity extends AppCompatActivity {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         while (i < text.length()) {
-            int open = text.indexOf("
-
-</think>
-
-", i);
+            int open = text.indexOf("<think>", i);
             if (open == -1) {
                 sb.append(text.substring(i));
                 break;
             }
             sb.append(text.substring(i, open));
-            int close = text.indexOf("
-
-</think>
-
-", open + 2);
+            int close = text.indexOf("</think>", open + 2);
             if (close == -1) {
                 break;
             }
