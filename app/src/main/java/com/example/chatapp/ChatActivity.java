@@ -169,7 +169,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void sendToServer(String lastUserMessage, String baseContinueContent, boolean continueRequest) {
-        HttpURLConnection conn = null;
+              HttpURLConnection conn = null;
+        StringBuilder assistantContent = new StringBuilder(baseContinueContent);
         try {
             URL url = new URL(serverUrl);
             conn = (HttpURLConnection) url.openConnection();
@@ -204,7 +205,6 @@ public class ChatActivity extends AppCompatActivity {
             }
 
             final int code = conn.getResponseCode();
-            StringBuilder assistantContent = new StringBuilder(baseContinueContent);
             if (code == HttpURLConnection.HTTP_OK) {
                 readSSE(conn, (delta) -> {
                     assistantContent.append(delta);
