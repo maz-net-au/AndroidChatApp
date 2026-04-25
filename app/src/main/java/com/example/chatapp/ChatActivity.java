@@ -216,13 +216,18 @@ public class ChatActivity extends AppCompatActivity {
                         } else {
                             adapter.appendLastServerMessage(delta);
                         }
+                        LinearLayoutManager lm = (LinearLayoutManager) rvMessages.getLayoutManager();
+                        int pos = adapter.getItemCount() - 1;
                         rvMessages.post(() -> {
-                            View lastChild = rvMessages.getChildAt(rvMessages.getChildCount() - 1);
-                            if (lastChild != null) {
-                                ((LinearLayoutManager) rvMessages.getLayoutManager())
-                                        .scrollToPositionWithOffset(adapter.getItemCount() - 1,
-                                                lastChild.getBottom() - rvMessages.getBottom());
-                            }
+                            lm.scrollToPosition(pos);
+                            rvMessages.post(() -> {
+                                View lastChild = lm.findViewByPosition(pos);
+                                if (lastChild != null) {
+                                    int overflow = lastChild.getBottom() - rvMessages.getBottom();
+                                    if (overflow > 0)
+                                        rvMessages.scrollBy(0, overflow);
+                                }
+                            });
                         });
                     });
                 });
