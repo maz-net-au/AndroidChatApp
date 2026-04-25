@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -215,7 +216,14 @@ public class ChatActivity extends AppCompatActivity {
                         } else {
                             adapter.appendLastServerMessage(delta);
                         }
-                        rvMessages.scrollToPosition(adapter.getItemCount() - 1);
+                        rvMessages.post(() -> {
+                            View lastChild = rvMessages.getChildAt(rvMessages.getChildCount() - 1);
+                            if (lastChild != null) {
+                                ((LinearLayoutManager) rvMessages.getLayoutManager())
+                                        .scrollToPositionWithOffset(adapter.getItemCount() - 1,
+                                                lastChild.getBottom() - rvMessages.getBottom());
+                            }
+                        });
                     });
                 });
                 saveAssistantResponse(assistantContent.toString(), continueRequest, requestBody);
