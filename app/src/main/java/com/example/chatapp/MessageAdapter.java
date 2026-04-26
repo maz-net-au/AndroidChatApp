@@ -31,9 +31,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         void onShowHistory();
     }
 
+    public interface OnDeleteListener {
+        void onDelete(int messagePosition);
+    }
+
     private OnRerollListener rerollListener;
     private OnContinueListener continueListener;
     private OnShowHistoryListener showHistoryListener;
+    private OnDeleteListener deleteListener;
 
     public void setRerollListener(OnRerollListener listener) {
         this.rerollListener = listener;
@@ -45,6 +50,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void setShowHistoryListener(OnShowHistoryListener listener) {
         this.showHistoryListener = listener;
+    }
+
+    public void setDeleteListener(OnDeleteListener listener) {
+        this.deleteListener = listener;
     }
 
     public static class Message {
@@ -74,6 +83,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         ImageButton btnReroll;
         ImageButton btnContinue;
         ImageButton btnHistory;
+        ImageButton btnDelete;
         LinearLayout layoutMessage;
 
         public MessageViewHolder(@NonNull View itemView) {
@@ -82,6 +92,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             btnReroll = itemView.findViewById(R.id.btnReroll);
             btnContinue = itemView.findViewById(R.id.btnContinue);
             btnHistory = itemView.findViewById(R.id.btnHistory);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
             layoutMessage = itemView.findViewById(R.id.layoutMessage);
         }
     }
@@ -114,6 +125,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.layoutMessage.setGravity(android.view.Gravity.START);
             holder.btnReroll.setVisibility(View.GONE);
             holder.btnContinue.setVisibility(View.GONE);
+            holder.btnHistory.setVisibility(View.GONE);
         } else {
             holder.tvMessage.setBackgroundResource(R.color.server_message);
             holder.tvMessage.setGravity(android.view.Gravity.START);
@@ -135,6 +147,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 holder.btnHistory.setOnClickListener(v -> showHistoryListener.onShowHistory());
             }
         }
+        holder.btnDelete.setVisibility(View.VISIBLE);
+        holder.btnDelete.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onDelete(position);
+            }
+        });
     }
 
     @Override
@@ -177,5 +195,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void clear() {
         messages.clear();
         notifyDataSetChanged();
+    }
+
+    public void deleteMessage(int position) {
+        messages.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public List<Message> getMessages() {
+        return messages;
     }
 }

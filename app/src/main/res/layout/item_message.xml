@@ -54,6 +54,16 @@
                 android:src="@android:drawable/ic_menu_view"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="5dp"
+                android:contentDescription="Delete"
+                android:src="@android:drawable/ic_menu_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 

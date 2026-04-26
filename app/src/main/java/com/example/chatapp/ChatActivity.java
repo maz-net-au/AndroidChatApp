@@ -80,6 +80,7 @@ public class ChatActivity extends AppCompatActivity {
         }
         adapter.setRerollListener(this::handleReroll);
         adapter.setContinueListener(this::handleContinue);
+        adapter.setDeleteListener(this::handleDelete);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
         rvMessages.setLayoutManager(layoutManager);
@@ -125,6 +126,15 @@ public class ChatActivity extends AppCompatActivity {
 
         setStreaming(true);
         executor.execute(() -> sendToServer("", baseContent, true));
+    }
+
+    private void handleDelete(int messagePosition) {
+        mainHandler.post(() -> {
+            adapter.deleteMessage(messagePosition);
+            // The adapter list is now the source of truth for message order.
+            // Rebuild conversationHistory to stay in sync.
+            rebuildConversationHistory();
+        });
     }
 
     private void setStreaming(boolean streaming) {
@@ -350,6 +360,21 @@ public class ChatActivity extends AppCompatActivity {
         conversationHistory.clear();
         adapter.clear();
         etMessage.requestFocus();
+    }
+
+    private void rebuildConversationHistory() {
+        conversationHistory.clear();
+        List<MessageAdapter.Message> msgList = adapter.getMessages();
+        for (MessageAdapter.Message m : msgList) {
+            try {
+                JSONObject msg = new JSONObject();
+                msg.put("role", m.isUser() ? "user" : "assistant");
+                msg.put("content", m.getText());
+                conversationHistory.add(msg);
+            } catch (JSONException e) {
+                // Should never happen
+            }
+        }
     }
 
     private void showConversationHistory() {
